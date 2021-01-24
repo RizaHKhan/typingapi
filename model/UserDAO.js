@@ -22,7 +22,28 @@ export default class UserDAO {
 
   static async addUser(userInfo) {
     try {
-      await users.insertOne({ ...userInfo })
+      const { ops } = await users.insertOne({ ...userInfo })
+      return ops[0]
+    } catch (e) {
+      return { error: e }
+    }
+  }
+
+  static async loginUser(email, jwt) {
+    try {
+      const session = await sessions.updateOne(
+        {
+          user_id: email,
+        },
+        {
+          $set: {
+            jwt,
+          },
+        },
+        {
+          upsert: true,
+        }
+      )
       return { success: true }
     } catch (e) {
       return { error: e }
